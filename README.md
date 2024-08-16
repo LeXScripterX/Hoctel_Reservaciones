@@ -42,15 +42,16 @@ pip install -r requirements.txt
 
 ### 4. Realizar Migraciones
 ```bash
-pip install -r requirements.txt
+python manage.py migrate
+
 ```
 
 ### 5. Crear un Super Usuario
 ```bash
-pip install -r requirements.txt
+python manage.py createsuperuser
 ```
 
 ### 6. Ejecutar el servidor de desarrollo
 ```bash
-pip install -r requirements.txt
+python manage.py runserver
 ```
