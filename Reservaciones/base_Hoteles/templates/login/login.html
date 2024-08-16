@@ -1,0 +1,16 @@
+{% extends 'index.html' %} {% block title %}Iniciar Sesión{% endblock %} {% block content %}
+<div class="container" style="max-width: 400px; margin: auto;">
+    <h2>Iniciar Sesión</h2>
+    <form method="post" style="width: 100%;">
+        {% csrf_token %}
+        <div style="margin-bottom: 15px;">
+            {{ form.username.label_tag }} {{ form.username }}
+        </div>
+        <div style="margin-bottom: 15px;">
+            {{ form.password.label_tag }} {{ form.password }}
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Iniciar Sesión</button>
+    </form>
+    <p>¿No tienes una cuenta? <a href="{% url 'register' %}">Regístrate aquí</a>.</p>
+</div>
+{% endblock %}

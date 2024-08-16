@@ -1,0 +1,17 @@
+{% extends 'index.html' %} {% block title %}Confirmar Eliminación{% endblock %} {% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-2 text-gray-800">Confirmar Eliminación</h1>
+    <p class="mb-4">¿Estás seguro de que deseas eliminar la reservación {{ object.room_number }}?
+    </p>
+
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Eliminar</button>
+                <a href="{% url 'rooms_list' %}" class="btn btn-secondary">Cancelar</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

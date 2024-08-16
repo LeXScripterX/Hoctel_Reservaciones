@@ -1,0 +1,8 @@
+{% extends 'index.html' %} {% block title %}Cerrar Sesión{% endblock %} {% block content %}
+<div class="container">
+    <h2>Has cerrado sesión exitosamente</h2>
+    <p>Gracias por usar nuestro servicio. Esperamos verte pronto.</p>
+    <a href="{% url 'index' %}" class="btn btn-primary">Volver a la página de inicio</a>
+    <a href="{% url 'login' %}" class="btn btn-secondary">Iniciar Sesión</a>
+</div>
+{% endblock %}
