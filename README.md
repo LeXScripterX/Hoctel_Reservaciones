@@ -1,4 +1,4 @@
-# 🏨 Hotel Reservation System
+# 🏨 Sistema De Reserva de Hotel
 
 Bienvenido al **Sistema de Reservas de Hoteles**. Este proyecto es una aplicación web desarrollada con Django y Django Rest Framework (DRF) para gestionar reservas, habitaciones y estancias en un hotel.
 
@@ -24,5 +24,33 @@ Bienvenido al **Sistema de Reservas de Hoteles**. Este proyecto es una aplicaci�
 ### 1. Clonar el repositorio
 
 ```bash
-git clone https://github.com/tuusuario/hotel-reservation-system.git
-cd hotel-reservation-system
+git clone https://github.com/LeXScripterX/Hoctel_Reservaciones.git
+cd Hoctel_Reservaciones
+```
+
+### 2. Crea y activar un entorno virtual
+
+```bash
+python -m venv venv
+source venv/bin/activate  # En Windows: venv\Scripts\activate
+```
+
+### 3. Instala dependencias
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Realizar Migraciones
+```bash
+pip install -r requirements.txt
+```
+
+### 5. Crear un Super Usuario
+```bash
+pip install -r requirements.txt
+```
+
+### 6. Ejecutar el servidor de desarrollo
+```bash
+pip install -r requirements.txt
+```
