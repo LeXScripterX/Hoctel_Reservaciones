@@ -1,38 +1,42 @@
 from django import forms
-from django.contrib.auth.forms import AuthenticationForm
 from .models import Profile, Reservation, Room, Stay, User
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm 
 
-# Formulario para Reservation
-class ReservationForm(forms.ModelForm):
-    class Meta:
-        model = Reservation
-        fields = ['usuario', 'fecha_inicio', 'fecha_fin', 'total']  # Incluyendo 'total' si es necesario
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['fecha_inicio'].widget = forms.DateTimeInput(attrs={'type': 'datetime-local'})
-        self.fields['fecha_fin'].widget = forms.DateTimeInput(attrs={'type': 'datetime-local'})
-        self.fields['total'].widget.attrs.update({'readonly': 'readonly'})  # Hacer que el campo 'total' sea solo lectura, si es calculado
-
-# Formulario para Room
+# Formulario Para Habitacion
 class RoomForm(forms.ModelForm):
     class Meta:
         model = Room
         fields = ['numero', 'tipo', 'precio_por_noche', 'disponible']
 
-# Formulario para Stay (Estancia)
-class StayForm(forms.ModelForm):
+
+# Formulario para reserva
+class ReservationForm(forms.ModelForm):
     class Meta:
-        model = Stay
-        fields = ['fecha_check_in', 'fecha_check_out', 'reserva']
+        model = Reservation
+        fields = ['fecha_inicio', 'fecha_fin', 'room']  # Agregamos 'room' al formulario
+        widgets = {
+            'fecha_inicio': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+            'fecha_fin': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+        }
+def clean(self):
+       cleaned_data = super().clean()
+       fecha_inicio = cleaned_data.get('fecha_inicio')
+       fecha_fin = cleaned_data.get('fecha_fin')
+       room = cleaned_data.get('room')
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['fecha_check_in'].widget = forms.DateTimeInput(attrs={'type': 'datetime-local'})
-        self.fields['fecha_check_out'].widget = forms.DateTimeInput(attrs={'type': 'datetime-local'})
-
-
+       if fecha_inicio and fecha_fin and room:
+           if fecha_inicio >= fecha_fin:
+               raise forms.ValidationError("La fecha de inicio debe ser anterior a la fecha de fin.")
+           
+           # Verificar disponibilidad de la habitación
+           if Reservation.objects.filter(
+                room=room,
+                fecha_inicio__lte=fecha_fin,
+                fecha_fin__gte=fecha_inicio
+            ).exists():
+               raise forms.ValidationError("La habitación no está disponible para las fechas seleccionadas.")
+           return cleaned_data
+       
 
 # Formulario personalizado para la creación de usuarios
 class CustomUserCreationForm(UserCreationForm):
@@ -47,9 +51,7 @@ class CustomUserCreationForm(UserCreationForm):
         if commit:
             user.save()
         return user
-
-# Formulario para el inicio de sesión
-
+    
 
 # Formulario para el inicio de sesión
 class LoginForm(AuthenticationForm):
@@ -57,7 +59,7 @@ class LoginForm(AuthenticationForm):
     password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
 
 
-# Formulario para actualizar datos del usuario
+    # Formulario para actualizar datos del usuario
 class UserUpdateForm(forms.ModelForm):
     class Meta:
         model = User
@@ -68,13 +70,10 @@ class StayUpdateForm(forms.ModelForm):
     class Meta:
         model = Stay
         fields = ['fecha_check_in', 'fecha_check_out']
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['fecha_check_in'].widget = forms.DateTimeInput(attrs={'type': 'datetime-local'})
-        self.fields['fecha_check_out'].widget = forms.DateTimeInput(attrs={'type': 'datetime-local'})
-
-
+        widgets = {
+            'fecha_check_in': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+            'fecha_check_out': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+        }
 class ProfileUpdateForm(forms.ModelForm):
     class Meta:
         model = Profile

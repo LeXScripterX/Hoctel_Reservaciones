@@ -2,6 +2,7 @@
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, authenticate, logout
+from django.views.generic.edit import UpdateView, DeleteView
 from django.views.generic import View, CreateView, UpdateView,ListView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import ReservationForm, RoomForm, CustomUserCreationForm, LoginForm, UserUpdateForm
@@ -53,6 +54,21 @@ class RoomDeleteView(LoginRequiredMixin, DeleteView):
     template_name = 'rooms/room_confirm_delete.html'
     success_url = reverse_lazy('rooms_list')
     
+# # botones view
+# class ReservationUpdateView(LoginRequiredMixin, UpdateView):
+#     model = Reservation
+#     form_class = ReservationForm
+#     template_name = 'reservas/reservation_form.html'
+#     success_url = reverse_lazy('reservations_list')
+
+# class ReservationDeleteView(LoginRequiredMixin, DeleteView):
+#     model = Reservation
+#     template_name = 'reservas/reservation_confirm_delete.html'
+#     success_url = reverse_lazy('reservations_list')  
+
+def room_list(request):
+    rooms = Room.objects.all()
+    return render(request, 'rooms/room_list.html', {'rooms': rooms})
 
 # Vista para Reservation
 class ReservationViewSet(viewsets.ModelViewSet):
@@ -149,23 +165,26 @@ def profile(request):
 
     return render(request, 'login/perfil.html', context)
 
+def make_reservation(request, id):
+    room = get_object_or_404(Room, pk=id)
 
-
-@login_required
-def make_reservation(request, room_id):
-    room = get_object_or_404(Room, id=room_id)
     if request.method == 'POST':
         form = ReservationForm(request.POST)
         if form.is_valid():
             reservation = form.save(commit=False)
-            reservation.user = request.user
             reservation.room = room
-            reservation.save()
-            return redirect('rooms_list')
-    else:
-        form = ReservationForm(initial={'room': room})
-    return render(request, 'reservas/make_reservation.html', {'form': form, 'room': room})
+            reservation.usuario = request.user
 
+            # Calcula el total según el número de noches
+            nights = (reservation.fecha_fin - reservation.fecha_inicio).days
+            reservation.total = nights * room.precio_por_noche
+
+            reservation.save()
+            return redirect('list_reservations')
+    else:
+        form = ReservationForm()
+
+    return render(request, 'reservas/make_reservation.html', {'form': form, 'room': room})
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])

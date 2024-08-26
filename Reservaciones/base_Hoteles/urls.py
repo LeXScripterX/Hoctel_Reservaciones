@@ -4,9 +4,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import (
      index, CustomLoginView, CustomLogoutView, CustomSignupView,
-     profile, RoomListView, RoomCreateView, RoomUpdateView, RoomDeleteView, make_reservation, ReservationListView
-)
-
+     profile, RoomListView, RoomCreateView, RoomUpdateView, RoomDeleteView, make_reservation, ReservationListView )
 #UserViewSet, RoomViewSet, ReservationViewSet, StayViewSet, index
 """router = DefaultRouter()
 router.register(r'users', UserViewSet)
@@ -16,25 +14,23 @@ router.register(r'stays', StayViewSet)
 """
 
 urlpatterns = [
-     path('', index, name='index'), 
- 
-    path('', index, name='index'),
+    path('', index, name='index'), 
     path('login/', CustomLoginView.as_view(), name='login'),
     path('logout/', CustomLogoutView.as_view(), name='logout'),
     path('register/', CustomSignupView.as_view(), name='register'),
     path('profile/', profile, name='profile'),
-     path('rooms/', RoomListView.as_view(), name='rooms_list'),
-     path('rooms/create/', RoomCreateView.as_view(), name='room_create'),
-     path('rooms/update/<int:pk>/', RoomUpdateView.as_view(), name='room_edit'),
-     path('rooms/delete/<int:pk>/', RoomDeleteView.as_view(), name='room_delete'),
-     path('rooms/reserve/<int:room_id>/', make_reservation, name='make_reservation'),
-     path('reservations/', ReservationListView.as_view(), name='list_reservations'),
+    path('rooms/', RoomListView.as_view(), name='rooms_list'),
+    path('rooms/create/', RoomCreateView.as_view(), name='room_create'),
+    path('rooms/update/<int:pk>/', RoomUpdateView.as_view(), name='room_edit'),
+    path('rooms/delete/<int:pk>/', RoomDeleteView.as_view(), name='room_delete'),
+    path('rooms/reserve/<int:id>/', make_reservation, name='make_reservation'),
+    path('reservations/', ReservationListView.as_view(), name='list_reservations'),
+    
 ]
 
  
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-# AgRv1012457849*ñ
 """
 Para un usuario con rol de "cliente", deberías seleccionar los permisos que le permitan realizar las acciones necesarias, pero sin dar acceso a funciones administrativas. Aquí te sugiero los tipos de permisos que deberías considerar:
 
