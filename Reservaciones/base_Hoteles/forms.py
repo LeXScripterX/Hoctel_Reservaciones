@@ -13,7 +13,7 @@ class RoomForm(forms.ModelForm):
 class ReservationForm(forms.ModelForm):
     class Meta:
         model = Reservation
-        fields = ['fecha_inicio', 'fecha_fin', 'room']  # Agregamos 'room' al formulario
+        fields = ['fecha_inicio', 'fecha_fin', 'room']
         widgets = {
             'fecha_inicio': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
             'fecha_fin': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
@@ -42,12 +42,12 @@ def clean(self):
 class CustomUserCreationForm(UserCreationForm):
     class Meta:
         model = User
-        fields = ('username', 'email', 'password1', 'password2', 'nombre', 'rol')
+        fields = ('username', 'email', 'password1', 'password2', 'nombre')
 
     def save(self, commit=True):
         user = super().save(commit=False)
         user.email = self.cleaned_data['email']
-        user.set_password(self.cleaned_data['password1'])  # Asegúrate de que la contraseña se establezca correctamente
+        user.set_password(self.cleaned_data['password1']) 
         if commit:
             user.save()
         return user
@@ -63,7 +63,7 @@ class LoginForm(AuthenticationForm):
 class UserUpdateForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ['username', 'email', 'nombre', 'rol']
+        fields = ['username', 'email', 'nombre',]
 
 # Formulario para actualizar la estancia (Stay)
 class StayUpdateForm(forms.ModelForm):

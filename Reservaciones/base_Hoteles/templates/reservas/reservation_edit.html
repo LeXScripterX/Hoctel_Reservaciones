@@ -1,0 +1,21 @@
+{% extends 'index.html' %}
+
+{% block title %}Editar Reservación{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-2 text-gray-800">Editar Reservación</h1>
+    <p class="mb-4">Modifica los detalles de la reservación {{ object.room_number }}</p>
+    
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                <a href="{% url 'rooms_list' %}" class="btn btn-secondary">Cancelar</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -4,7 +4,9 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import (
      index, CustomLoginView, CustomLogoutView, CustomSignupView,
-     profile, RoomListView, RoomCreateView, RoomUpdateView, RoomDeleteView, make_reservation, ReservationListView )
+     profile, RoomListView, RoomCreateView, RoomUpdateView, RoomDeleteView, make_reservation,
+              ReservationListView, ReservationUpdateView,ReservationDeleteView 
+            )
 #UserViewSet, RoomViewSet, ReservationViewSet, StayViewSet, index
 """router = DefaultRouter()
 router.register(r'users', UserViewSet)
@@ -25,6 +27,8 @@ urlpatterns = [
     path('rooms/delete/<int:pk>/', RoomDeleteView.as_view(), name='room_delete'),
     path('rooms/reserve/<int:id>/', make_reservation, name='make_reservation'),
     path('reservations/', ReservationListView.as_view(), name='list_reservations'),
+    path('reservation/edit/<int:pk>/', ReservationUpdateView.as_view(), name='reservations_Update'),
+    path('reservations/delete/<int:pk>/', ReservationDeleteView.as_view(), name='reservations_Delete'),
     
 ]
 

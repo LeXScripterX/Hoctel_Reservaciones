@@ -29,9 +29,11 @@
                             </div>
                         </div>
                         <div class="form-group row">
+                            {% if user.is_staff %}
                             <label for="rol" class="col-md-4 col-form-label text-md-right">Rol</label>
                             <div class="col-md-6">
                                 {{ u_form.rol }}
+                                {% endif %}
                             </div>
                         </div>
                         <hr>

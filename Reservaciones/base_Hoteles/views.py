@@ -5,13 +5,10 @@ from django.contrib.auth import login, authenticate, logout
 from django.views.generic.edit import UpdateView, DeleteView
 from django.views.generic import View, CreateView, UpdateView,ListView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .forms import ReservationForm, RoomForm, CustomUserCreationForm, LoginForm, UserUpdateForm
-from .forms import UserUpdateForm, ProfileUpdateForm
+from .forms import ReservationForm, RoomForm, CustomUserCreationForm, LoginForm, UserUpdateForm, ProfileUpdateForm
 from rest_framework import viewsets
 from .models import Profile, User, Room, Reservation, Stay
 from .serializers import RoomSerializer, ReservationSerializer, StaySerializer, UserSerializer
-from rest_framework.permissions import IsAuthenticated
-from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
@@ -37,6 +34,9 @@ class RoomListView(LoginRequiredMixin, ListView):
     template_name = 'rooms/room_list.html'
     context_object_name = 'rooms'
 
+    def get_queryset(self):
+        return Room.objects.all()
+
 class RoomCreateView(LoginRequiredMixin, CreateView):
     model = Room
     form_class = RoomForm
@@ -54,34 +54,77 @@ class RoomDeleteView(LoginRequiredMixin, DeleteView):
     template_name = 'rooms/room_confirm_delete.html'
     success_url = reverse_lazy('rooms_list')
     
-# # botones view
-# class ReservationUpdateView(LoginRequiredMixin, UpdateView):
-#     model = Reservation
-#     form_class = ReservationForm
-#     template_name = 'reservas/reservation_form.html'
-#     success_url = reverse_lazy('reservations_list')
-
-# class ReservationDeleteView(LoginRequiredMixin, DeleteView):
-#     model = Reservation
-#     template_name = 'reservas/reservation_confirm_delete.html'
-#     success_url = reverse_lazy('reservations_list')  
-
 def room_list(request):
     rooms = Room.objects.all()
     return render(request, 'rooms/room_list.html', {'rooms': rooms})
 
 # Vista para Reservation
-class ReservationViewSet(viewsets.ModelViewSet):
-    queryset = Reservation.objects.all()
-    serializer_class = ReservationSerializer
-    permission_classes = [IsAuthenticated]    
-
 class ReservationListView(LoginRequiredMixin, ListView):
     model = Reservation
     template_name = 'reservas/list_reservations.html'
     context_object_name = 'reservations'
 
+    def get_queryset(self):
+        if self.request.user.is_staff:
+            return Reservation.objects.all()
+        else:
+            return Reservation.objects.filter(usuario=self.request.user)
 
+def make_reservation(request, id):
+    room = get_object_or_404(Room, pk=id)
+    
+    if request.method == 'POST':
+        form = ReservationForm(request.POST)
+        
+        if form.is_valid():
+            # Crea una instancia de Reservation sin guardarla aún en la base de datos
+            reservation = form.save(commit=False)
+            
+            # Asigna el usuario y la habitación a la reserva
+            reservation.usuario = request.user  # Asegúrate de usar 'usuario' en lugar de 'user'
+            reservation.room = room
+            
+            # Calcula el total según el número de noches
+            nights = (reservation.fecha_fin - reservation.fecha_inicio).days
+            reservation.total = nights * room.precio_por_noche
+            
+            # Guarda la reserva en la base de datos
+            reservation.save()
+
+            # Actualiza la disponibilidad de la habitación
+            room.disponible = False
+            room.save()
+
+            return redirect('list_reservations')
+    else:
+        form = ReservationForm()
+
+    return render(request, 'reservas/make_reservation.html', {'form': form, 'room': room})
+class ReservationUpdateView(LoginRequiredMixin, UpdateView):
+    model = Reservation
+    form_class = ReservationForm
+    template_name = 'reservas/reservation_edit.html'
+    success_url = reverse_lazy('list_reservations')
+
+    def form_valid(self, form):
+        reservation = form.save(commit=False)
+        nights = (reservation.fecha_fin - reservation.fecha_inicio).days
+        reservation.total = nights * reservation.room.precio_por_noche
+        return super().form_valid(form)
+    
+
+class ReservationDeleteView(LoginRequiredMixin, DeleteView):
+    model = Reservation
+    template_name = 'reservas/reservation_delete.html'
+    success_url = reverse_lazy('list_reservations')
+
+    def get_queryset(self):
+       if self.request.user.is_staff:
+           return Reservation.objects.all()
+       else:
+           return Reservation.objects.filter(usuario=self.request.user)
+
+#
 def index(request):
     return render(request, 'index.html')   
 
@@ -165,26 +208,6 @@ def profile(request):
 
     return render(request, 'login/perfil.html', context)
 
-def make_reservation(request, id):
-    room = get_object_or_404(Room, pk=id)
-
-    if request.method == 'POST':
-        form = ReservationForm(request.POST)
-        if form.is_valid():
-            reservation = form.save(commit=False)
-            reservation.room = room
-            reservation.usuario = request.user
-
-            # Calcula el total según el número de noches
-            nights = (reservation.fecha_fin - reservation.fecha_inicio).days
-            reservation.total = nights * room.precio_por_noche
-
-            reservation.save()
-            return redirect('list_reservations')
-    else:
-        form = ReservationForm()
-
-    return render(request, 'reservas/make_reservation.html', {'form': form, 'room': room})
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
